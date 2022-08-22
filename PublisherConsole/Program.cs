@@ -1,4 +1,5 @@
-﻿using PublisherData;
+﻿using Microsoft.EntityFrameworkCore;
+using PublisherData;
 using PublisherDomain;
 
 using (PubContext context = new PubContext())
@@ -6,12 +7,15 @@ using (PubContext context = new PubContext())
     context.Database.EnsureCreated();
 }
 
-AddAuthors();
-GetAuthors();
+AddAuthorWithBook();
+GetAuthorsWithBooks();
 
-void AddAuthors()
+//AddAuthors();
+//GetAuthors();
+
+/*void AddAuthors()
 {
-    var author = new Author { FirstName = "Anna", LastName = "Peaks" };
+    var author = new Author { FirstName = "Bob", LastName = "Black" };
     using var context = new PubContext();
     context.Authors.Add(author);
     context.SaveChanges();
@@ -24,5 +28,39 @@ void GetAuthors()
     foreach (var author in authors)
     {
         Console.WriteLine(author.FirstName + " " + author.LastName);
+    }
+}*/
+
+void AddAuthorWithBook()
+{
+    var author = new Author { FirstName = "Julie", LastName = "Lerman" };
+
+    author.Books.Add(new Book
+    {
+        Title = "Programming EF",
+        PublishDate = new DateTime(2009, 1, 1)
+    });
+
+    author.Books.Add(new Book
+    {
+        Title = "Programming EF 2nd Ed",
+        PublishDate = new DateTime(2010, 8, 1)
+    });
+    using var context = new PubContext();
+    context.Authors.Add(author);
+    context.SaveChanges();
+}
+
+void GetAuthorsWithBooks()
+{
+    using var context = new PubContext();
+    var authors = context.Authors.Include(a => a.Books).ToList();
+    foreach (var author in authors)
+    {
+        Console.WriteLine(author.FirstName + " " + author.LastName);
+        foreach (var book in author.Books)
+        {
+            Console.WriteLine(" *" + book.Title);
+        }
     }
 }
